@@ -12,6 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface TweetRepositories  extends JpaRepository<Tweet, String> {
-    @Query("SELECT Tweet FROM Tweet WHERE Tweet.author.login = :login")
+    @Query("SELECT Tweet FROM Tweet WHERE author.login = :login")
     List<Tweet> findByLogin(@Param("login") String login);
 }

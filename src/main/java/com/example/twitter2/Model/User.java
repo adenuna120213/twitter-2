@@ -9,7 +9,6 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "users")
-@Builder
 public class User {
     @Id
     @Column(name = "id")
@@ -22,7 +21,7 @@ public class User {
     @JoinTable(name = "followers",
     joinColumns = @JoinColumn(name = "follower_id"),
     inverseJoinColumns = @JoinColumn(name = "influencer_id"))
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<User> following;
     @JoinTable(name = "followers",
             joinColumns = @JoinColumn(name = "influencer_id"),

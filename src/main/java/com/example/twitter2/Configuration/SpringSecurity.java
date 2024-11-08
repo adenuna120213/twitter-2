@@ -1,9 +1,9 @@
 package com.example.twitter2.Configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,12 +30,11 @@ public class SpringSecurity {
     // configure SecurityFilterChain
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/register/**").permitAll()
-                .requestMatchers("/index").permitAll()        //For matching http request requests.
-                .requestMatchers("/users").hasRole("ADMIN") //Giving acess for admins role users only.
-                .and()
+        http.authorizeHttpRequests(rq ->{
+                    rq.requestMatchers("/register/**").permitAll();
+                    rq.requestMatchers("/index").permitAll();
+                })
+                .authenticationProvider(authenticationProvider())
                 .formLogin(
                         form -> form
                                 .loginPage("/login")
@@ -50,10 +49,10 @@ public class SpringSecurity {
                 );
         return http.build();
     }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder builder) throws Exception {
-        builder.userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());      //Just passwordEncoder bean and UserDetailsService bean must be there then no need of this configuration setting as sping6 will automatically set user details, service and password encoded objects to auntication.
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return daoAuthenticationProvider;
     }
 }
